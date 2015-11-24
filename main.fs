@@ -27,37 +27,50 @@ let main args =
     let encode = Encode null
     do encode |> socket.SendSynchronously |> ignore
     printfn "Sent successfully"
+    let decode = unbox Decode encode.[4..] 
+    printfn "Decoded to %A" decode
 
     let encode = Encode 25L
     do encode |> socket.SendSynchronously |> ignore
     printfn "Sent successfully"
+    let decode = unbox Decode encode.[4..]
+    printfn "Decoded to %A" decode
 
     let encode = Encode "hello world"
     do encode |> socket.SendSynchronously |> ignore
     printfn "Sent successfully"
+    let decode = unbox Decode encode.[4..]
+    printfn "Decoded to %A" decode
 
     let encode = System.Text.Encoding.ASCII.GetBytes "hello world" |> Encode
     do encode |> socket.SendSynchronously |> ignore
     printfn "Sent successfully"
+    let decode = unbox Decode encode.[4..]
+    printfn "Decoded to %A" decode
 
     let encode = Encode [1L; 2L; 3L; 4L]
     do encode |> socket.SendSynchronously |> ignore
     printfn "Sent successfully"
+    let decode = unbox Decode encode.[4..]
+    printfn "Decoded to %A" decode
 
     let dict = new Dictionary<string, string>()
-    do dict.Add("01234567", "Hello")
+    do dict.Add("0123456", "Hello")
     dict.Add("B", "World")
     dict.Add("C", "Food")
     dict.Add("D", "Boo")
     let encode = Encode dict
     do encode |> socket.SendSynchronously |> ignore
     printfn "Sent successfully"
+    let decode = unbox Decode encode.[4..]
+    printfn "Decoded to %A" decode
 
     let o = new Person("Aurojit", 20L)
     let encode = Encode o
-    printfn "Encoded %A" encode
     do encode |> socket.SendSynchronously |> ignore
-    (*printfn "Sent successfully"*)
+    printfn "Sent successfully"
+    let decode = unbox Decode encode.[4..]
+    printfn "Decoded to %A" decode
   with
     e -> printfn "Caught error %s" (string e)
   0
