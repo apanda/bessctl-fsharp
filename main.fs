@@ -7,8 +7,13 @@ open System.Collections.Generic
 
 [<BessMessage>]
 type Person(name: string, age: int64) =
-  member this.Name = name
-  member this.Age = age
+  let mutable _name = name
+  let mutable _age = age
+  member this.Name with get() = _name and set(value) = _name <- value
+  member this.Age with get() = _age and set(value) = _age <- value
+  new() = Person("", 0L)
+  override this.ToString () =
+    sprintf "Name: %s Age: %d" _name _age
 
 let port = 10514
 let address = IPAddress.Parse("127.0.0.1")
@@ -71,6 +76,8 @@ let main args =
     printfn "Sent successfully"
     let decode = unbox Decode encode.[4..]
     printfn "Decoded to %A" decode
+    let decodeO : Person = DecodeObject encode.[4..]
+    printfn "Decoded to %O" decodeO
   with
     e -> printfn "Caught error %s" (string e)
   0
