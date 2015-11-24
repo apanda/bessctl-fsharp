@@ -16,6 +16,9 @@ let private addLength (data: byte array) =
   Array.concat [|(System.BitConverter.GetBytes (int data.Length)); 
                  data |]
 
+let ReadLength (data: byte array) =
+  System.BitConverter.ToInt32(data, 0)
+
 (* Add BESS CTL channel messge *)
 let private encode (t: int) (len: int) (data : byte array) =
   Array.concat [|(System.BitConverter.GetBytes t);
@@ -24,14 +27,14 @@ let private encode (t: int) (len: int) (data : byte array) =
 
 (* BESS strings need to be 8 byte padded, figure out how many bytes to add *)
 let private find8BytePadding (length: int) =
-  let l = length + 1
+  let l = length
   let m = l % 8
-  let p = (8 - m) + 1
-  if m = 0 then 1 else p
+  let p = (8 - m)
+  if m = 0 then 0 else p
 
 (* Pad by 8 bytes *)
 let private pad8Bytes (a: byte array) =
-  let p = find8BytePadding(a.Length)
+  let p = find8BytePadding(a.Length + 1) + 1
   Array.append a (Array.zeroCreate p)
 
 (* Some active patterns *)
@@ -248,7 +251,6 @@ let DecodeObject<'a when 'a : (new: unit -> 'a)> (bstream: byte array): 'a =
   let m : Dictionary<string, obj> = DecodeMap bstream
   Array.iter (fun (prop: PropertyInfo) ->
       let k : string = prop.Name 
-      printfn "%s %A" k m
       prop.SetValue(t, m.[k])
   ) properties
   t
